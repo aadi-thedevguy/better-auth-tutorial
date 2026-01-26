@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -10,40 +10,40 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { LoadingSwap } from "@/components/ui/loading-swap"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const totpSchema = z.object({
   code: z.string().length(6),
-})
+});
 
-type TotpForm = z.infer<typeof totpSchema>
+type TotpForm = z.infer<typeof totpSchema>;
 
 export function TotpForm() {
-  const router = useRouter()
+  const router = useRouter();
   const form = useForm<TotpForm>({
     resolver: zodResolver(totpSchema),
     defaultValues: {
       code: "",
     },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handleTotpVerification(data: TotpForm) {
     await authClient.twoFactor.verifyTotp(data, {
-      onError: error => {
-        toast.error(error.error.message || "Failed to verify code")
+      onError: (error) => {
+        toast.error(error.error.message || "Failed to verify code");
       },
       onSuccess: () => {
-        router.push("/")
+        router.push("/");
       },
-    })
+    });
   }
 
   return (
@@ -71,5 +71,5 @@ export function TotpForm() {
         </Button>
       </form>
     </Form>
-  )
+  );
 }

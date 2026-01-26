@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -10,28 +10,28 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { PasswordInput } from "@/components/ui/password-input"
-import { Button } from "@/components/ui/button"
-import { LoadingSwap } from "@/components/ui/loading-swap"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
-import { NumberInput } from "@/components/ui/number-input"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
+import { NumberInput } from "@/components/ui/number-input";
 
 const signUpSchema = z.object({
   name: z.string().min(1),
   email: z.email().min(1),
   password: z.string().min(6),
   favoriteNumber: z.number().int(),
-})
+});
 
-type SignUpForm = z.infer<typeof signUpSchema>
+type SignUpForm = z.infer<typeof signUpSchema>;
 
 export function SignUpTab({
   openEmailVerificationTab,
 }: {
-  openEmailVerificationTab: (email: string) => void
+  openEmailVerificationTab: (email: string) => void;
 }) {
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
@@ -40,22 +40,22 @@ export function SignUpTab({
       email: "",
       password: "",
     },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handleSignUp(data: SignUpForm) {
     const res = await authClient.signUp.email(
       { ...data, callbackURL: "/" },
       {
-        onError: error => {
-          toast.error(error.error.message || "Failed to sign up")
+        onError: (error) => {
+          toast.error(error.error.message || "Failed to sign up");
         },
-      }
-    )
+      },
+    );
 
     if (res.error == null && !res.data.user.emailVerified) {
-      openEmailVerificationTab(data.email)
+      openEmailVerificationTab(data.email);
     }
   }
 
@@ -123,5 +123,5 @@ export function SignUpTab({
         </Button>
       </form>
     </Form>
-  )
+  );
 }

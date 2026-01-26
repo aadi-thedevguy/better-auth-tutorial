@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button"
-import { authClient } from "@/lib/auth/auth-client"
-import { useRouter } from "next/navigation"
+import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button";
+import { authClient } from "@/lib/auth/auth-client";
+import { useRouter } from "next/navigation";
 
 export function InviteInformation({
   invitation,
 }: {
-  invitation: { id: string; organizationId: string }
+  invitation: { id: string; organizationId: string };
 }) {
-  const router = useRouter()
+  const router = useRouter();
 
   function acceptInvite() {
     return authClient.organization.acceptInvitation(
@@ -18,19 +18,19 @@ export function InviteInformation({
         onSuccess: async () => {
           await authClient.organization.setActive({
             organizationId: invitation.organizationId,
-          })
-          router.push("/organizations")
+          });
+          router.push("/organizations");
         },
-      }
-    )
+      },
+    );
   }
   function rejectInvite() {
     return authClient.organization.rejectInvitation(
       {
         invitationId: invitation.id,
       },
-      { onSuccess: () => router.push("/") }
-    )
+      { onSuccess: () => router.push("/") },
+    );
   }
 
   return (
@@ -46,5 +46,5 @@ export function InviteInformation({
         Reject
       </BetterAuthActionButton>
     </div>
-  )
+  );
 }

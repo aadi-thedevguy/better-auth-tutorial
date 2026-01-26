@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Table,
@@ -7,19 +7,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { authClient } from "@/lib/auth/auth-client"
-import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { authClient } from "@/lib/auth/auth-client";
+import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button";
 
 export function MembersTab() {
-  const { data: activeOrganization } = authClient.useActiveOrganization()
-  const { data: session } = authClient.useSession()
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const { data: session } = authClient.useSession();
 
   function removeMember(memberId: string) {
     return authClient.organization.removeMember({
       memberIdOrEmail: memberId,
-    })
+    });
   }
 
   return (
@@ -33,7 +33,7 @@ export function MembersTab() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {activeOrganization?.members?.map(member => (
+        {activeOrganization?.members?.map((member) => (
           <TableRow key={member.id}>
             <TableCell>{member.user.name}</TableCell>
             <TableCell>{member.user.email}</TableCell>
@@ -43,8 +43,8 @@ export function MembersTab() {
                   member.role === "owner"
                     ? "default"
                     : member.role === "admin"
-                    ? "secondary"
-                    : "outline"
+                      ? "secondary"
+                      : "outline"
                 }
               >
                 {member.role}
@@ -66,5 +66,5 @@ export function MembersTab() {
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }

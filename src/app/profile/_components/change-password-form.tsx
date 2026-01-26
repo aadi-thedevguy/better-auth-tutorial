@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -10,21 +10,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import { LoadingSwap } from "@/components/ui/loading-swap"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
-import { PasswordInput } from "@/components/ui/password-input"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
   newPassword: z.string().min(6),
   revokeOtherSessions: z.boolean(),
-})
+});
 
-type ChangePasswordForm = z.infer<typeof changePasswordSchema>
+type ChangePasswordForm = z.infer<typeof changePasswordSchema>;
 
 export function ChangePasswordForm() {
   const form = useForm<ChangePasswordForm>({
@@ -34,20 +34,20 @@ export function ChangePasswordForm() {
       newPassword: "",
       revokeOtherSessions: true,
     },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handlePasswordChange(data: ChangePasswordForm) {
     await authClient.changePassword(data, {
-      onError: error => {
-        toast.error(error.error.message || "Failed to change password")
+      onError: (error) => {
+        toast.error(error.error.message || "Failed to change password");
       },
       onSuccess: () => {
-        toast.success("Password changed successfully")
-        form.reset()
+        toast.success("Password changed successfully");
+        form.reset();
       },
-    })
+    });
   }
 
   return (
@@ -106,5 +106,5 @@ export function ChangePasswordForm() {
         </Button>
       </form>
     </Form>
-  )
+  );
 }

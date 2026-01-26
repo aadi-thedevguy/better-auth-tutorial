@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -10,36 +10,38 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import { LoadingSwap } from "@/components/ui/loading-swap"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { PasswordInput } from "@/components/ui/password-input"
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import QRCode from "react-qr-code"
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { PasswordInput } from "@/components/ui/password-input";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import QRCode from "react-qr-code";
 
 const twoFactorAuthSchema = z.object({
   password: z.string().min(1),
-})
+});
 
-type TwoFactorAuthForm = z.infer<typeof twoFactorAuthSchema>
+type TwoFactorAuthForm = z.infer<typeof twoFactorAuthSchema>;
 type TwoFactorData = {
-  totpURI: string
-  backupCodes: string[]
-}
+  totpURI: string;
+  backupCodes: string[];
+};
 
 export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
-  const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(null)
-  const router = useRouter()
+  const [twoFactorData, setTwoFactorData] = useState<TwoFactorData | null>(
+    null,
+  );
+  const router = useRouter();
   const form = useForm<TwoFactorAuthForm>({
     resolver: zodResolver(twoFactorAuthSchema),
     defaultValues: { password: "" },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handleDisableTwoFactorAuth(data: TwoFactorAuthForm) {
     await authClient.twoFactor.disable(
@@ -47,28 +49,28 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
         password: data.password,
       },
       {
-        onError: error => {
-          toast.error(error.error.message || "Failed to disable 2FA")
+        onError: (error) => {
+          toast.error(error.error.message || "Failed to disable 2FA");
         },
         onSuccess: () => {
-          form.reset()
-          router.refresh()
+          form.reset();
+          router.refresh();
         },
-      }
-    )
+      },
+    );
   }
 
   async function handleEnableTwoFactorAuth(data: TwoFactorAuthForm) {
     const result = await authClient.twoFactor.enable({
       password: data.password,
-    })
+    });
 
     if (result.error) {
-      toast.error(result.error.message || "Failed to enable 2FA")
+      toast.error(result.error.message || "Failed to enable 2FA");
     }
     {
-      setTwoFactorData(result.data)
-      form.reset()
+      setTwoFactorData(result.data);
+      form.reset();
     }
   }
 
@@ -77,10 +79,10 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
       <QRCodeVerify
         {...twoFactorData}
         onDone={() => {
-          setTwoFactorData(null)
+          setTwoFactorData(null);
         }}
       />
-    )
+    );
   }
 
   return (
@@ -88,7 +90,7 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
       <form
         className="space-y-4"
         onSubmit={form.handleSubmit(
-          isEnabled ? handleDisableTwoFactorAuth : handleEnableTwoFactorAuth
+          isEnabled ? handleDisableTwoFactorAuth : handleEnableTwoFactorAuth,
         )}
       >
         <FormField
@@ -117,28 +119,28 @@ export function TwoFactorAuth({ isEnabled }: { isEnabled: boolean }) {
         </Button>
       </form>
     </Form>
-  )
+  );
 }
 
 const qrSchema = z.object({
   token: z.string().length(6),
-})
+});
 
-type QrForm = z.infer<typeof qrSchema>
+type QrForm = z.infer<typeof qrSchema>;
 
 function QRCodeVerify({
   totpURI,
   backupCodes,
   onDone,
 }: TwoFactorData & { onDone: () => void }) {
-  const [successfullyEnabled, setSuccessfullyEnabled] = useState(false)
-  const router = useRouter()
+  const [successfullyEnabled, setSuccessfullyEnabled] = useState(false);
+  const router = useRouter();
   const form = useForm<QrForm>({
     resolver: zodResolver(qrSchema),
     defaultValues: { token: "" },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handleQrCode(data: QrForm) {
     await authClient.twoFactor.verifyTotp(
@@ -146,15 +148,15 @@ function QRCodeVerify({
         code: data.token,
       },
       {
-        onError: error => {
-          toast.error(error.error.message || "Failed to verify code")
+        onError: (error) => {
+          toast.error(error.error.message || "Failed to verify code");
         },
         onSuccess: () => {
-          setSuccessfullyEnabled(true)
-          router.refresh()
+          setSuccessfullyEnabled(true);
+          router.refresh();
         },
-      }
-    )
+      },
+    );
   }
 
   if (successfullyEnabled) {
@@ -175,7 +177,7 @@ function QRCodeVerify({
           Done
         </Button>
       </>
-    )
+    );
   }
 
   return (
@@ -209,5 +211,5 @@ function QRCodeVerify({
         <QRCode size={256} value={totpURI} />
       </div>
     </div>
-  )
+  );
 }

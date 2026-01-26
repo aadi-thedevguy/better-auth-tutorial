@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -10,45 +10,45 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Button } from "@/components/ui/button"
-import { LoadingSwap } from "@/components/ui/loading-swap"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
-import { PasswordInput } from "@/components/ui/password-input"
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
+import { PasswordInput } from "@/components/ui/password-input";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
+} from "@/components/ui/card";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6),
-})
+});
 
-type ResetPasswordForm = z.infer<typeof resetPasswordSchema>
+type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export default function ResetPasswordPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const token = searchParams.get("token")
-  const error = searchParams.get("error")
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const error = searchParams.get("error");
 
   const form = useForm<ResetPasswordForm>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: "",
     },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handleResetPassword(data: ResetPasswordForm) {
-    if (token == null) return
+    if (token == null) return;
 
     await authClient.resetPassword(
       {
@@ -56,19 +56,19 @@ export default function ResetPasswordPage() {
         token,
       },
       {
-        onError: error => {
-          toast.error(error.error.message || "Failed to reset password")
+        onError: (error) => {
+          toast.error(error.error.message || "Failed to reset password");
         },
         onSuccess: () => {
           toast.success("Password reset successful", {
             description: "Redirection to login...",
-          })
+          });
           setTimeout(() => {
-            router.push("/auth/login")
-          }, 1000)
+            router.push("/auth/login");
+          }, 1000);
         },
-      }
-    )
+      },
+    );
   }
 
   if (token == null || error != null) {
@@ -88,7 +88,7 @@ export default function ResetPasswordPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -127,5 +127,5 @@ export default function ResetPasswordPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

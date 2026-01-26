@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 import {
   Form,
   FormControl,
@@ -10,56 +10,59 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { PasswordInput } from "@/components/ui/password-input"
-import { Button } from "@/components/ui/button"
-import { LoadingSwap } from "@/components/ui/loading-swap"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-import { PasskeyButton } from "./passkey-button"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
+import { LoadingSwap } from "@/components/ui/loading-swap";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { PasskeyButton } from "./passkey-button";
+import { Badge } from "@/components/ui/badge";
 
 const signInSchema = z.object({
   email: z.email().min(1),
   password: z.string().min(6),
-})
+});
 
-type SignInForm = z.infer<typeof signInSchema>
+type SignInForm = z.infer<typeof signInSchema>;
 
 export function SignInTab({
   openEmailVerificationTab,
   openForgotPassword,
+  lastLoginMethod,
 }: {
-  openEmailVerificationTab: (email: string) => void
-  openForgotPassword: () => void
+  openEmailVerificationTab: (email: string) => void;
+  openForgotPassword: () => void;
+  lastLoginMethod?: string;
 }) {
-  const router = useRouter()
+  const router = useRouter();
   const form = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-  })
+  });
 
-  const { isSubmitting } = form.formState
+  const { isSubmitting } = form.formState;
 
   async function handleSignIn(data: SignInForm) {
     await authClient.signIn.email(
       { ...data, callbackURL: "/" },
       {
-        onError: error => {
+        onError: (error) => {
           if (error.error.code === "EMAIL_NOT_VERIFIED") {
-            openEmailVerificationTab(data.email)
+            openEmailVerificationTab(data.email);
           }
-          toast.error(error.error.message || "Failed to sign in")
+          toast.error(error.error.message || "Failed to sign in");
         },
         onSuccess: () => {
-          router.push("/")
+          router.push("/");
         },
-      }
-    )
+      },
+    );
   }
 
   return (
@@ -111,13 +114,31 @@ export function SignInTab({
               </FormItem>
             )}
           />
-
-          <Button type="submit" disabled={isSubmitting} className="w-full">
-            <LoadingSwap isLoading={isSubmitting}>Sign In</LoadingSwap>
-          </Button>
+          <div className="flex items-center justify-between gap-6 pt-3">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full relative"
+            >
+              <LoadingSwap isLoading={isSubmitting}>
+                Sign In
+                {lastLoginMethod === "email" && (
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 absolute -top-3.5 right-0"
+                  >
+                    Last used
+                  </Badge>
+                )}
+              </LoadingSwap>
+            </Button>
+          </div>
         </form>
       </Form>
-      <PasskeyButton />
+
+      <div className="flex flex-col gap-5">
+        <PasskeyButton />
+      </div>
     </div>
-  )
+  );
 }

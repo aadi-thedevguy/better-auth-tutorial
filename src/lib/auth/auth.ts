@@ -1,18 +1,19 @@
-import { betterAuth } from "better-auth"
+import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { nextCookies } from "better-auth/next-js"
-import { sendPasswordResetEmail } from "../emails/password-reset-email"
-import { sendEmailVerificationEmail } from "../emails/email-verification"
-import { createAuthMiddleware } from "better-auth/api"
-import { sendWelcomeEmail } from "../emails/welcome-email"
-import { sendDeleteAccountVerificationEmail } from "../emails/delete-account-verification"
-import { twoFactor } from "better-auth/plugins/two-factor"
-import { passkey } from "@better-auth/passkey"
-import { admin as adminPlugin } from "better-auth/plugins/admin"
-import { organization } from "better-auth/plugins/organization"
-import { ac, admin, user } from "@/components/auth/permissions"
-import { sendOrganizationInviteEmail } from "../emails/organization-invite-email"
-import { prisma } from "../prisma"
+import { nextCookies } from "better-auth/next-js";
+import { sendPasswordResetEmail } from "../emails/password-reset-email";
+import { sendEmailVerificationEmail } from "../emails/email-verification";
+import { createAuthMiddleware } from "better-auth/api";
+import { sendWelcomeEmail } from "../emails/welcome-email";
+import { sendDeleteAccountVerificationEmail } from "../emails/delete-account-verification";
+import { twoFactor } from "better-auth/plugins/two-factor";
+import { passkey } from "@better-auth/passkey";
+import { admin as adminPlugin } from "better-auth/plugins/admin";
+import { organization } from "better-auth/plugins/organization";
+import { ac, admin, user } from "@/components/auth/permissions";
+import { sendOrganizationInviteEmail } from "../emails/organization-invite-email";
+import { prisma } from "../prisma";
+import { haveIBeenPwned, lastLoginMethod } from "better-auth/plugins";
 
 export const auth = betterAuth({
   appName: "Better Auth Demo",
@@ -23,13 +24,13 @@ export const auth = betterAuth({
         await sendEmailVerificationEmail({
           user: { ...user, email: newEmail },
           url,
-        })
+        });
       },
     },
     deleteUser: {
       enabled: true,
       sendDeleteAccountVerification: async ({ user, url }) => {
-        await sendDeleteAccountVerificationEmail({ user, url })
+        await sendDeleteAccountVerificationEmail({ user, url });
       },
     },
     additionalFields: {
@@ -43,24 +44,35 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      await sendPasswordResetEmail({ user, url })
+      await sendPasswordResetEmail({ user, url });
     },
   },
   emailVerification: {
     autoSignInAfterVerification: true,
     sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
-      await sendEmailVerificationEmail({ user, url })
+      await sendEmailVerificationEmail({ user, url });
     },
   },
   socialProviders: {
     twitter: {
       clientId: process.env.TWITTER_CLIENT_ID!,
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
-      mapProfileToUser: profile => {
+      mapProfileToUser: (profile) => {
         return {
-          favoriteNumber: Number(profile.public_repos) || 0,
-        }
+          favoriteNumber: Math.floor(Math.random() * 100),
+          image: profile.data.profile_image_url,
+        };
+      },
+    },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      mapProfileToUser: (profile) => {
+        return {
+          favoriteNumber: Math.floor(Math.random() * 100),
+          image: profile.picture,
+        };
       },
     },
   },
@@ -74,6 +86,10 @@ export const auth = betterAuth({
     nextCookies(),
     twoFactor(),
     passkey(),
+    haveIBeenPwned(),
+    lastLoginMethod({
+      storeInDatabase: true,
+    }),
     adminPlugin({
       ac,
       roles: {
@@ -93,25 +109,25 @@ export const auth = betterAuth({
           inviter: inviter.user,
           organization,
           email,
-        })
+        });
       },
     }),
   ],
-  
-   trustedOrigins: [process.env.BETTER_AUTH_URL!!],
+
+  trustedOrigins: [process.env.BETTER_AUTH_URL!],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
   hooks: {
-    after: createAuthMiddleware(async ctx => {
+    after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up")) {
         const user = ctx.context.newSession?.user ?? {
           name: ctx.body.name,
           email: ctx.body.email,
-        }
+        };
 
         if (user != null) {
-          await sendWelcomeEmail(user)
+          await sendWelcomeEmail(user);
         }
       }
     }),
@@ -119,7 +135,7 @@ export const auth = betterAuth({
   databaseHooks: {
     session: {
       create: {
-        before: async userSession => {
+        before: async (userSession) => {
           const membership = await prisma.member.findFirst({
             where: {
               userId: userSession.userId,
@@ -130,16 +146,16 @@ export const auth = betterAuth({
             select: {
               organizationId: true,
             },
-          })
+          });
 
           return {
             data: {
               ...userSession,
               activeOrganizationId: membership?.organizationId,
             },
-          }
+          };
         },
       },
     },
   },
-})
+});

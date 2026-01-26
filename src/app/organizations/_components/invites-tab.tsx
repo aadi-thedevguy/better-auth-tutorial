@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Table,
@@ -7,20 +7,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { authClient } from "@/lib/auth/auth-client"
-import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button"
-import { CreateInviteButton } from "./create-invite-button"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { authClient } from "@/lib/auth/auth-client";
+import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button";
+import { CreateInviteButton } from "./create-invite-button";
 
 export function InvitesTab() {
-  const { data: activeOrganization } = authClient.useActiveOrganization()
+  const { data: activeOrganization } = authClient.useActiveOrganization();
   const pendingInvites = activeOrganization?.invitations?.filter(
-    invite => invite.status === "pending"
-  )
+    (invite) => invite.status === "pending",
+  );
 
   function cancelInvitation(invitationId: string) {
-    return authClient.organization.cancelInvitation({ invitationId })
+    return authClient.organization.cancelInvitation({ invitationId });
   }
 
   return (
@@ -39,7 +39,7 @@ export function InvitesTab() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {pendingInvites?.map(invitation => (
+          {pendingInvites?.map((invitation) => (
             <TableRow key={invitation.id}>
               <TableCell>{invitation.email}</TableCell>
               <TableCell>
@@ -62,5 +62,5 @@ export function InvitesTab() {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

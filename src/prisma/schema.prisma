@@ -32,6 +32,8 @@ model User {
   members          Member[]
   invitations      Invitation[]
 
+  lastLoginMethod String?
+
   @@unique([email])
   @@map("user")
 }

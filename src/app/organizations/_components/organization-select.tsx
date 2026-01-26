@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Select,
@@ -6,27 +6,27 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { authClient } from "@/lib/auth/auth-client"
-import { toast } from "sonner"
+} from "@/components/ui/select";
+import { authClient } from "@/lib/auth/auth-client";
+import { toast } from "sonner";
 
 export function OrganizationSelect() {
-  const { data: activeOrganization } = authClient.useActiveOrganization()
-  const { data: organizations } = authClient.useListOrganizations()
+  const { data: activeOrganization } = authClient.useActiveOrganization();
+  const { data: organizations } = authClient.useListOrganizations();
 
   if (organizations == null || organizations.length === 0) {
-    return null
+    return null;
   }
 
   function setActiveOrganization(organizationId: string) {
     authClient.organization.setActive(
       { organizationId },
       {
-        onError: error => {
-          toast.error(error.error.message || "Failed to switch organization")
+        onError: (error) => {
+          toast.error(error.error.message || "Failed to switch organization");
         },
-      }
-    )
+      },
+    );
   }
 
   return (
@@ -38,12 +38,12 @@ export function OrganizationSelect() {
         <SelectValue placeholder="Select an organization" />
       </SelectTrigger>
       <SelectContent>
-        {organizations.map(org => (
+        {organizations.map((org) => (
           <SelectItem key={org.id} value={org.id}>
             {org.name}
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
-  )
+  );
 }

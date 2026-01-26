@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button"
-import { authClient } from "@/lib/auth/auth-client"
+import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button";
+import { authClient } from "@/lib/auth/auth-client";
 
 export function AccountDeletion() {
   return (
@@ -14,5 +14,5 @@ export function AccountDeletion() {
     >
       Delete Account Permanently
     </BetterAuthActionButton>
-  )
+  );
 }
