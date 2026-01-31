@@ -13,7 +13,7 @@ import { organization } from "better-auth/plugins/organization";
 import { ac, admin, user } from "@/components/auth/permissions";
 import { sendOrganizationInviteEmail } from "../emails/organization-invite-email";
 import { prisma } from "../prisma";
-import { haveIBeenPwned, lastLoginMethod } from "better-auth/plugins";
+import { haveIBeenPwned, lastLoginMethod, username } from "better-auth/plugins";
 
 export const auth = betterAuth({
   appName: "Better Auth Demo",
@@ -60,8 +60,9 @@ export const auth = betterAuth({
       clientSecret: process.env.TWITTER_CLIENT_SECRET!,
       mapProfileToUser: (profile) => {
         return {
-          favoriteNumber: Math.floor(Math.random() * 100),
+          username: profile.data.username,
           image: profile.data.profile_image_url,
+          favoriteNumber: Math.floor(Math.random() * 100),
         };
       },
     },
@@ -70,8 +71,9 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       mapProfileToUser: (profile) => {
         return {
-          favoriteNumber: Math.floor(Math.random() * 100),
+          username: profile.name,
           image: profile.picture,
+          favoriteNumber: Math.floor(Math.random() * 100),
         };
       },
     },
@@ -86,6 +88,7 @@ export const auth = betterAuth({
     nextCookies(),
     twoFactor(),
     passkey(),
+    username(),
     haveIBeenPwned(),
     lastLoginMethod({
       storeInDatabase: true,

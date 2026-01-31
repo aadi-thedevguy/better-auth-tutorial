@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { NumberInput } from "@/components/ui/number-input";
 
 const signUpSchema = z.object({
+  username: z.string().min(1),
   name: z.string().min(1),
   email: z.email().min(1),
   password: z.string().min(6),
@@ -36,6 +37,7 @@ export function SignUpTab({
   const form = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
+      username: "",
       name: "",
       email: "",
       password: "",
@@ -45,6 +47,14 @@ export function SignUpTab({
   const { isSubmitting } = form.formState;
 
   async function handleSignUp(data: SignUpForm) {
+    const { data: response } = await authClient.isUsernameAvailable({
+      username: data.username,
+    });
+
+    if (!response?.available) {
+      toast.error("Username is not available, Please try another username.");
+      return;
+    }
     const res = await authClient.signUp.email(
       { ...data, callbackURL: "/" },
       {
@@ -62,6 +72,19 @@ export function SignUpTab({
   return (
     <Form {...form}>
       <form className="space-y-4" onSubmit={form.handleSubmit(handleSignUp)}>
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="name"

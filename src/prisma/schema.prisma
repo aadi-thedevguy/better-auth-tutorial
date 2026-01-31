@@ -34,8 +34,12 @@ model User {
 
   lastLoginMethod String?
 
+  username        String?
+  displayUsername String?
+
   @@unique([email])
   @@map("user")
+  @@unique([username])
 }
 
 model Session {

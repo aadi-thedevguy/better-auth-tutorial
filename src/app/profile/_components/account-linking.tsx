@@ -99,7 +99,7 @@ function AccountCard({
   }
 
   return (
-    <Card>
+    <Card className="bg-accent">
       <CardContent>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">

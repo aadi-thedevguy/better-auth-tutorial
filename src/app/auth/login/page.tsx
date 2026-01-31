@@ -17,7 +17,6 @@ import { authClient } from "@/lib/auth/auth-client";
 import { useRouter } from "next/navigation";
 import { EmailVerification } from "./_components/email-verification";
 import { ForgotPassword } from "./_components/forgot-password";
-import { log } from "console";
 
 type Tab = "signin" | "signup" | "email-verification" | "forgot-password";
 

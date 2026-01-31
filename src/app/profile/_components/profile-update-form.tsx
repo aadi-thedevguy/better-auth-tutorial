@@ -23,6 +23,7 @@ const profileUpdateSchema = z.object({
   name: z.string().min(1),
   email: z.email().min(1),
   favoriteNumber: z.number().int(),
+  username: z.string().optional(),
 });
 
 type ProfileUpdateForm = z.infer<typeof profileUpdateSchema>;
@@ -34,20 +35,36 @@ export function ProfileUpdateForm({
     email: string;
     name: string;
     favoriteNumber: number;
+    username?: string | null;
   };
 }) {
   const router = useRouter();
   const form = useForm<ProfileUpdateForm>({
     resolver: zodResolver(profileUpdateSchema),
-    defaultValues: user,
+    defaultValues: {
+      ...user,
+      username: user.username || "",
+    },
   });
 
   const { isSubmitting } = form.formState;
 
   async function handleProfileUpdate(data: ProfileUpdateForm) {
+    if (data.username && data.username !== user.username) {
+      const { data: availability } = await authClient.isUsernameAvailable({
+        username: data.username,
+      });
+
+      if (!availability?.available) {
+        toast.error("Username is not available. Please try another username.");
+        return;
+      }
+    }
+
     const promises = [
       authClient.updateUser({
         name: data.name,
+        username: data.username,
         favoriteNumber: data.favoriteNumber,
       }),
     ];
@@ -86,6 +103,19 @@ export function ProfileUpdateForm({
         className="space-y-4 w-lg mx-auto"
         onSubmit={form.handleSubmit(handleProfileUpdate)}
       >
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="name"

@@ -20,10 +20,12 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { PasskeyButton } from "./passkey-button";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const signInSchema = z.object({
-  email: z.email().min(1),
   password: z.string().min(6),
+  email: z.email().optional(),
+  username: z.string().optional(),
 });
 
 type SignInForm = z.infer<typeof signInSchema>;
@@ -41,7 +43,8 @@ export function SignInTab({
   const form = useForm<SignInForm>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      email: "",
+      // email: "",
+      // username: "",
       password: "",
     },
   });
@@ -49,26 +52,60 @@ export function SignInTab({
   const { isSubmitting } = form.formState;
 
   async function handleSignIn(data: SignInForm) {
-    await authClient.signIn.email(
-      { ...data, callbackURL: "/" },
-      {
-        onError: (error) => {
-          if (error.error.code === "EMAIL_NOT_VERIFIED") {
-            openEmailVerificationTab(data.email);
-          }
-          toast.error(error.error.message || "Failed to sign in");
+    if (data.username) {
+      return await authClient.signIn.username(
+        {
+          username: data.username,
+          password: data.password,
+          callbackURL: "/",
         },
-        onSuccess: () => {
-          router.push("/");
+        {
+          onError: (error) => {
+            toast.error(error.error.message || "Failed to sign in");
+          },
+          onSuccess: () => {
+            router.push("/");
+          },
         },
-      },
-    );
+      );
+    }
+
+    if (data.email) {
+      return await authClient.signIn.email(
+        { email: data.email, password: data.password, callbackURL: "/" },
+        {
+          onError: (error) => {
+            if (error.error.code === "EMAIL_NOT_VERIFIED") {
+              openEmailVerificationTab(data?.email as string);
+            }
+            toast.error(error.error.message || "Failed to sign in");
+          },
+          onSuccess: () => {
+            router.push("/");
+          },
+        },
+      );
+    }
   }
 
   return (
     <div className="space-y-4">
       <Form {...form}>
         <form className="space-y-4" onSubmit={form.handleSubmit(handleSignIn)}>
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input type="text" autoComplete="johndoe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <h5 className="font-semibold text-center text-xl">OR</h5>
           <FormField
             control={form.control}
             name="email"
@@ -86,6 +123,7 @@ export function SignInTab({
               </FormItem>
             )}
           />
+          <Separator />
 
           <FormField
             control={form.control}
@@ -122,14 +160,15 @@ export function SignInTab({
             >
               <LoadingSwap isLoading={isSubmitting}>
                 Sign In
-                {lastLoginMethod === "email" && (
-                  <Badge
-                    variant="secondary"
-                    className="ml-2 absolute -top-3.5 right-0"
-                  >
-                    Last used
-                  </Badge>
-                )}
+                {lastLoginMethod === "email" ||
+                  (lastLoginMethod === "username" && (
+                    <Badge
+                      variant="secondary"
+                      className="ml-2 absolute -top-3.5 right-0"
+                    >
+                      Last used
+                    </Badge>
+                  ))}
               </LoadingSwap>
             </Button>
           </div>
