@@ -1,6 +1,7 @@
 "use client";
 
 import { BetterAuthActionButton } from "@/components/auth/better-auth-action-button";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth/auth-client";
 import Link from "next/link";
@@ -54,6 +55,7 @@ export default function Home() {
               >
                 Sign Out
               </BetterAuthActionButton>
+              <ThemeSwitcher />
             </div>
           </>
         )}
